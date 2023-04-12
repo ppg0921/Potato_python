@@ -52,7 +52,7 @@ class Maze:
     
     def getStartPoint(self):
         if (len(self.nd_dict) < 2):
-            print("Error: the start point is not included.")
+            print("Error: the start point is not included...")
             return 0
         return self.nd_dict[1]
 
