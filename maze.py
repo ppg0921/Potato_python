@@ -47,6 +47,9 @@ class Maze:
             self.nd_dict[i+1] = self.nodes[i]
         print(self.nd_dict)
 
+    def getActionQueue(self):
+        return self.actionQueue
+    
     def getStartPoint(self):
         if (len(self.nd_dict) < 2):
             print("Error: the start point is not included.")
