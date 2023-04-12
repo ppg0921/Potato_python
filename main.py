@@ -14,7 +14,8 @@ def main():
     # point = ScoreboardFake("your team name", "data/fakeUID.csv")
     interf = BTinterface()
     # TODO : Initialize necessary variables
-
+    StartIndex = 1
+    FinishIndex = 6
     if (sys.argv[1] == '0'):
         print("Mode 0: for treasure-hunting")
         # TODO : for treasure-hunting, which encourages you to hunt as many scores as possible
@@ -22,6 +23,7 @@ def main():
     elif (sys.argv[1] == '1'):
         print("Mode 1: Self-testing mode.")
         # TODO: You can write your code to test specific function.
+        
 
 if __name__ == '__main__':
     main()

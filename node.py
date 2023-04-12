@@ -23,7 +23,7 @@ class Node:
         return self.index
     
     def getAdjNum(self):
-        return self.getAdjNum
+        return self.adjNum
     
     def DeadVisited(self):
         self.deadVisited = True
@@ -46,7 +46,7 @@ class Node:
 		# For example, if the direction of nd from the present node is EAST, then return Direction.EAST = 4
 		# However, if nd is not adjacent to the present node, print error message and return 0 
         found = 0;
-        for succ in self.setSuccessors:
+        for succ in self.Successors:
             if succ[0] == nd:
                 found = 1
                 return succ[1]

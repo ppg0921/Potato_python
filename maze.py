@@ -19,7 +19,7 @@ class Action(IntEnum):
 
 
 class Maze:
-    def __init__(self, filepath):
+    def __init__(self, filepath, caroridir = Direction.NORTH):
         # TODO : read file and implement a data structure you like
 
         # For example, when parsing raw_data, you may create several Node objects.
@@ -35,8 +35,9 @@ class Maze:
         self.nodeNum, column_count = df.shape
         self.shortPath = LifoQueue(self.nodeNum)
         self.actionQueue = Queue(self.nodeNum)
-        print("nodeNum: ", self.nodeNum)
-        print("maze[1][4]: ", df[Direction_maze[1]][4])
+        self.carDirection = caroridir 
+        # print("nodeNum: ", self.nodeNum)
+        # print("maze[1][4]: ", df[Direction_maze[1]][4])
         for i in range(self.nodeNum):
             tmpNode = Node(df["index"][i])
             for j in range(1, 5):
@@ -61,8 +62,8 @@ class Maze:
 
         unprocessed = Queue(self.nodeNum)
         # finalPath = LifoQueue(self.nodeNum)
-        distance = np.zeros(self.nodeNum)
-        previous = np.zeros(self.nodeNum)
+        distance = np.zeros(self.nodeNum+1)
+        previous = np.zeros(self.nodeNum+1)
         unprocessed.put(nd.getIndex())
         distance[nd.getIndex()] = 1
         deadIndex = 0
@@ -70,13 +71,13 @@ class Maze:
         while unprocessed.empty() is False:
             tmpNode = self.nd_dict[unprocessed.get()]
             nowDis = distance[tmpNode.getIndex()]
-            for adj in tmpNode.getAdjNum():
-                Succ = tmpNode.getSuccessors[adj][0]
+            for adj in tmpNode.getSuccessors():
+                Succ = int(adj[0])
                 if distance[Succ] == 0:
                     unprocessed.put(Succ)
                     distance[Succ] = nowDis+1
-                    previous[Succ] = tmpNode.getIncex()
-                    if self.nd_dict[Succ].getAdjNum == 1 and self.nd_dict[Succ].getDeadVisited() == False:
+                    previous[Succ] = tmpNode.getIndex()
+                    if self.nd_dict[Succ].getAdjNum() == 1 and self.nd_dict[Succ].getDeadVisited() == False:
                         print("Deadend found... Node ", Succ)
                         self.nd_dict[Succ].DeadVisited()
                         deadIndex = Succ
@@ -86,12 +87,17 @@ class Maze:
                 break
 
         currIndex = deadIndex
-
-        while self.shortPath.empty() is True:
+        
+        while self.shortPath.empty() is False:
             self.shortPath.get()
-        while currIndex != nd.getIndex():
-            self.shortPath.put(currIndex)
-            currIndex = previous[currIndex]
+        if(deadIndex != 0):
+            while currIndex != nd.getIndex():
+                self.shortPath.put(currIndex)
+                currIndex = previous[int(currIndex)]
+                # print(currIndex)
+                # print("here1")
+            self.shortPath.put(currIndex)       # put start point
+        
 
         return None
 
@@ -101,21 +107,22 @@ class Maze:
         
         unprocessed = Queue(self.nodeNum)
         # finalPath = LifoQueue(self.nodeNum)
-        distance = np.zeros(self.nodeNum)
-        previous = np.zeros(self.nodeNum)
+        distance = np.zeros(self.nodeNum+1)
+        previous = np.zeros(self.nodeNum+1)
         unprocessed.put(nd_from.getIndex())
         distance[nd_from.getIndex()] = 1
         Found = False
 
         while unprocessed.empty() is False:
             tmpNode = self.nd_dict[unprocessed.get()]
+            print(tmpNode.getIndex())
             nowDis = distance[tmpNode.getIndex()]
-            for adj in tmpNode.getAdjNum():
-                Succ = tmpNode.getSuccessors[adj][0]
+            for adj in tmpNode.getSuccessors():
+                Succ = adj[0]
                 if distance[Succ] == 0:
                     unprocessed.put(Succ)
                     distance[Succ] = nowDis+1
-                    previous[Succ] = tmpNode.getIncex()
+                    previous[Succ] = tmpNode.getIndex()
                     if Succ == nd_to.getIndex():
                         print("Finish node found... Node ", Succ)
                         Found = True
@@ -125,11 +132,13 @@ class Maze:
                 break
 
         currIndex = nd_to.getIndex()
-        while self.shortPath.empty() is True:
+        while self.shortPath.empty() is False:
             self.shortPath.get()
         while currIndex != nd_from.getIndex():
             self.shortPath.put(currIndex)
-            currIndex = previous[currIndex]
+            # print("currIndex: ", currIndex)
+            currIndex = previous[int(currIndex)]
+        self.shortPath.put(nd_from.getIndex())
 
         return None
 
@@ -139,14 +148,37 @@ class Maze:
         # If not, print error message and return 0
         if nd_from.isSuccessor(nd_to.getIndex()):
             to_dir = nd_from.getDirection(nd_to.getIndex())
+
             if car_dir == to_dir:
-                return 1
-            if car_dir*to_dir == 2 or car_dir*to_dir == 12:
-                return 2
-            if to_dir == car_dir+2 or to_dir == car_dir-1 or to_dir == car_dir-3:
-                return 4
-            if to_dir == car_dir-2 or to_dir == car_dir+1 or to_dir == car_dir+3:
-                return 3
+                return Action.ADVANCE, to_dir
+            if car_dir == Direction.NORTH:
+                if to_dir == Direction.SOUTH:
+                    return Action.U_TURN, to_dir
+                if to_dir == Direction.EAST:
+                    return Action.TURN_RIGHT, to_dir
+                if to_dir == Direction.WEST:
+                    return Action.TURN_LEFT, to_dir
+            if car_dir == Direction.SOUTH:
+                if to_dir == Direction.NORTH:
+                    return Action.U_TURN, to_dir
+                if to_dir == Direction.WEST:
+                    return Action.TURN_RIGHT, to_dir
+                if to_dir == Direction.EAST:
+                    return Action.TURN_LEFT, to_dir
+            if car_dir == Direction.WEST:
+                if to_dir == Direction.EAST:
+                    return Action.U_TURN, to_dir
+                if to_dir == Direction.NORTH:
+                    return Action.TURN_RIGHT, to_dir
+                if to_dir == Direction.SOUTH:
+                    return Action.TURN_LEFT, to_dir
+            if car_dir == Direction.EAST:
+                if to_dir == Direction.WEST:
+                    return Action.U_TURN, to_dir
+                if to_dir == Direction.SOUTH:
+                    return Action.TURN_RIGHT, to_dir
+                if to_dir == Direction.NORTH:
+                    return Action.TURN_LEFT, to_dir
         else:
             print("Not adjacent... (from getAction)")
         
@@ -156,16 +188,23 @@ class Maze:
         # TODO : given a sequence of nodes, return the corresponding action sequence
         # Tips : iterate through the nodes and use getAction() in each iteration
         if nodes.empty() is False:
-            
             nowNode = self.nd_dict[nodes.get()]
             nextNode = self.nd_dict[nodes.get()]
-            car_dir = nowNode.getDirection(nextNode)
-            self.actionQueue.put(car_dir)
+            # print("Car_dir:", self.carDirection)
+            car_new_action, self.carDirection = self.getAction(self.carDirection, nowNode, nextNode)
+            self.actionQueue.put(car_new_action)
+            # print("Car_dir:", self.carDirection)
+            # print("car_new_action: ", car_new_action)
             while nodes.empty() is False:
                 nowNode = nextNode
                 nextNode = self.nd_dict[nodes.get()]
-                self.actionQueue.put(self.getAction(car_dir, nowNode, nextNode))
-        
+                car_new_action, self.carDirection = self.getAction(self.carDirection, nowNode, nextNode)
+                self.actionQueue.put(car_new_action)
+                # print("actionQueue.put ", car_new_action)
+                # print("Car_dir:", self.carDirection)
+        if nodes.empty() is True:
+            self.actionQueue.put(Action.HALT)
+            # print("actionQueue.put ", Action.HALT)
         
         return None
 
@@ -187,3 +226,10 @@ class Maze:
 
 if __name__ == '__main__':
     testMaze = Maze('./data/small_maze.csv')
+    testMaze.BFS(testMaze.nd_dict[1])
+    testMaze.getActions(testMaze.shortPath)
+    # while(testMaze.actionQueue.empty() is False):
+    #     print(testMaze.actionQueue.get())
+    
+    # print(testMaze.shortPath)
+    # print(testMaze.nd_dict[5].getIndex())
