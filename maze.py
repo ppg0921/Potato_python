@@ -100,9 +100,9 @@ class Maze:
                 # print(currIndex)
                 # print("here1")
             self.shortPath.put(currIndex)       # put start point
-        
+            return 1
 
-        return None
+        return -1
 
     def BFS_2(self, nd_from, nd_to):
         # TODO : similar to BFS but with fixed start point and end point
@@ -145,12 +145,16 @@ class Maze:
 
         return None
 
-    def getAction(self, car_dir, nd_from, nd_to):
+    def getAction(self, car_dir, nd_from, nd_to, first = False):
         # TODO : get the car action
         # Tips : return an action and the next direction of the car if the nd_to is the Successor of nd_to
         # If not, print error message and return 0
         if nd_from.isSuccessor(nd_to.getIndex()):
             to_dir = nd_from.getDirection(nd_to.getIndex())
+            
+            if first:
+                return Action.ADVANCE, to_dir
+
 
             if car_dir == to_dir:
                 return Action.ADVANCE, to_dir
@@ -194,7 +198,7 @@ class Maze:
             nowNode = self.nd_dict[nodes.get()]
             nextNode = self.nd_dict[nodes.get()]
             # print("Car_dir:", self.carDirection)
-            car_new_action, self.carDirection = self.getAction(self.carDirection, nowNode, nextNode)
+            car_new_action, self.carDirection = self.getAction(self.carDirection, nowNode, nextNode, first = True)
             self.actionQueue.put(car_new_action)
             # print("Car_dir:", self.carDirection)
             # print("car_new_action: ", car_new_action)
@@ -228,11 +232,23 @@ class Maze:
 
 
 if __name__ == '__main__':
-    testMaze = Maze('./data/small_maze.csv')
-    testMaze.BFS(testMaze.nd_dict[1])
+    testMaze = Maze('./data/maze_4_3-1.csv')
+    while()
+    testMaze.BFS_2(testMaze.nd_dict[1], testMaze.nd_dict[10])
     testMaze.getActions(testMaze.shortPath)
-    # while(testMaze.actionQueue.empty() is False):
-    #     print(testMaze.actionQueue.get())
+    while(testMaze.actionQueue.empty() is False):
+        tmpAction = testMaze.actionQueue.get()
+        # print(tmpAction)
+        if tmpAction == Action.U_TURN:
+            print("b")
+        elif tmpAction == Action.ADVANCE:
+            print("f")
+        elif tmpAction == Action.TURN_LEFT:
+            print("l")
+        elif tmpAction == Action.TURN_RIGHT:
+            print("r")
+        
+        
     
     # print(testMaze.shortPath)
     # print(testMaze.nd_dict[5].getIndex())
