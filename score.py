@@ -176,7 +176,7 @@ class Socket(socketio.ClientNamespace):
 if __name__ == '__main__':
     import time
     try:
-        myScoreboard = Scoreboard("TeamName2","http://localhost:3000")
+        myScoreboard = Scoreboard("POTATO","http://localhost:3000")
         # myScoreboard = ScoreboardFake("TeamName","data/fakeUID.csv")
         time.sleep(6)
         myScoreboard.add_UID("61C9931C")

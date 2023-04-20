@@ -25,7 +25,8 @@ class Maze:
         # For example, when parsing raw_data, you may create several Node objects.
         # Then you can store these objects into self.nodes.
         # Finally, add to nd_dict by {key(index): value(corresponding node)}
-        self.cmds = ""
+        self.cmds = "P"
+        self.CmdLen = 1
         self.raw_data = pandas.read_csv(filepath).values
         self.nodes = []
         # key: index, value: the correspond nodedf = pandas.read_csv(filepath)
@@ -58,6 +59,12 @@ class Maze:
 
     def getNodeDict(self):
         return self.nd_dict
+    
+    def getCmds(self):
+        return self.cmds
+    
+    def getCmdLen(self):
+        return self.CmdLen
 
     def BFS(self, nd):
         # TODO : design your data structure here for your algorithm
@@ -153,12 +160,9 @@ class Maze:
         # Tips : return an action and the next direction of the car if the nd_to is the Successor of nd_to
         # If not, print error message and return 0
         if nd_from.isSuccessor(nd_to.getIndex()):
-            to_dir = nd_from.getDirection(nd_to.getIndex())
-            
+            to_dir = nd_from.getDirection(nd_to.getIndex())            
             if first:
                 return Action.ADVANCE, to_dir
-
-
             if car_dir == to_dir:
                 return Action.ADVANCE, to_dir
             if car_dir == Direction.NORTH:
@@ -232,29 +236,42 @@ class Maze:
         print(cmds)
         return cmds
     
+    def CmdAppend(self, c):
+        self.cmds += c
+        self.CmdLen += 1
+    
     def putCmdtoCmds(self):
         while self.actionQueue.empty() is False:
             tmpAction = self.actionQueue.get()
             # print(tmpAction)
             if tmpAction == Action.U_TURN:
                 self.cmds += "b"
+                self.CmdLen += 1
             elif tmpAction == Action.ADVANCE:
                 self.cmds += "f"
+                self.CmdLen += 1
             elif tmpAction == Action.TURN_LEFT:
                 self.cmds += "l"
+                self.CmdLen += 1
             elif tmpAction == Action.TURN_RIGHT:
                 self.cmds += "r"
+                self.CmdLen += 1
+            
         return None
 
     def strategy(self, nd):
         return self.BFS(nd)
 
-    def ShortRoute(self, nd_from, nd_to):
+    def ShortRoute(self, idx_from, idx_to):
+        nd_from = self.nd_dict[idx_from]
+        nd_to = self.nd_dict[idx_to]
         self.BFS_2(nd_from, nd_to)
         self.getActions(self.shortPath, First = True)
         self.putCmdtoCmds()
     
-    def DeadEndTraversal(self, nd_start, nd_end):
+    def DeadEndTraversal(self, idx_start, idx_end):
+        nd_start = self.nd_dict[idx_start]
+        nd_end = self.nd_dict[idx_end]
         startIndex = nd_start.getIndex()
         nd_start.DeadVisited()
         nd_end.DeadVisited()
@@ -263,17 +280,6 @@ class Maze:
         while dead != -1:
             self.getActions(self.shortPath, currNode.getIndex() == startIndex)
             self.putCmdtoCmds()
-            # while(self.actionQueue.empty() is False):
-            #     tmpAction = self.actionQueue.get()
-            #     # print(tmpAction)
-            #     if tmpAction == Action.U_TURN:
-            #         print("b")
-            #     elif tmpAction == Action.ADVANCE:
-            #         print("f")
-            #     elif tmpAction == Action.TURN_LEFT:
-            #         print("l")
-            #     elif tmpAction == Action.TURN_RIGHT:
-            #         print("r")
             print("end of BFS to dead end ", dead)
             currNode = self.nd_dict[dead]
             oldDead = dead
@@ -281,31 +287,18 @@ class Maze:
         print("end of all BFS to deadends...")
         self.putCmdtoCmds()
     
-        self.BFS_2(self.nd_dict[oldDead], self.nd_dict[10])
+        self.BFS_2(self.nd_dict[oldDead], self.nd_dict[idx_end])
         self.getActions(self.shortPath, currNode.getIndex() == startIndex)
         self.putCmdtoCmds()
-        # print("here")
-        #self.putCmdtoCmds()
-        # while(self.actionQueue.empty() is False):
-        #     tmpAction = self.actionQueue.get()
-        #     # print(tmpAction)
-        #     if tmpAction == Action.U_TURN:
-        #         print("b")
-        #     elif tmpAction == Action.ADVANCE:
-        #         print("f")
-        #     elif tmpAction == Action.TURN_LEFT:
-        #         print("l")
-        #     elif tmpAction == Action.TURN_RIGHT:
-        #         print("r")
         
         print("End of BFS_2...")
 
 
 
 if __name__ == '__main__':
-    testMaze = Maze('./data/maze_4_3-2.csv')
+    testMaze = Maze('./data/maze_formal-1.csv')
     # testMaze.DeadEndTraversal(testMaze.nd_dict[1], testMaze.nd_dict[10])
-    testMaze.ShortRoute(testMaze.nd_dict[1], testMaze.nd_dict[10])
+    testMaze.ShortRoute(1, 48)
     print(testMaze.cmds)
     
     # startIndex = 1

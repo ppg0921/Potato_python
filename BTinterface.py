@@ -17,20 +17,26 @@ class BTinterface:
 
     def start(self):
         input("Press enter to start.")
-        self.ser.SerialWriteString('s')
+        # self.ser.SerialWriteString('s')
 
     def get_UID(self):
         return self.ser.SerialReadByte()
 
     def send_action(self,dirc):
+        # dircstring = str(dirc)
+        self.ser.SerialWriteString(dirc)
+        
         # TODO : send the action to car
         return
 
     def end_process(self):
         self.ser.SerialWriteString('e')
         self.ser.disconnect()
+    
+    
 
 if __name__ == '__main__':
     test = BTinterface()
     test.start()
+    test.ser.SerialWriteString("testString")
     test.end_process()
